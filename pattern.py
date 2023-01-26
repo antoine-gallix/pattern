@@ -1,5 +1,8 @@
 from dataclasses import dataclass
 from typing import List
+import click
+import itertools
+import time
 
 
 @dataclass
@@ -60,10 +63,29 @@ def print_sequence(sequence):
     buf.print()
 
 
-def print_pattern(i):
+def make_pattern(i):
     cell = Sequence([0])
     for _ in range(i):
         halfsequence = cell + (-cell).offset(cell.span)
         sequence = halfsequence + halfsequence.reverse()
         cell = sequence
-    print_sequence(cell)
+    return sequence
+
+
+def sequence_flow(sequence, freq=60):
+    interval = 60 / freq
+    for sample in itertools.cycle(sequence):
+        print(" " * sample + "*")
+        time.sleep(interval)
+
+
+@click.command
+@click.argument("order", type=click.INT)
+@click.option("--freq", "-f", type=click.INT, default=60)
+def flow(order, freq):
+    sequence = make_pattern(order)
+    sequence_flow(sequence, freq)
+
+
+if __name__ == "__main__":
+    flow()
